@@ -99,4 +99,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     indexFileStream.on('finish', resolve);
     indexFileStream.end();
   });
+
+  // close the mysql connection
+  await connection.end();
 };
