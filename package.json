@@ -10,12 +10,12 @@
   "scripts": {
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
-    "preversion": "npm run lint",
+    "preversion": "npm test && npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "format": "prettier --write src/**/*.ts tests/**/*.ts",
     "lint": "tslint -p tsconfig.json",
-    "build": "tsc",
+    "build": "rimraf dist/ && tsc",
     "test": "jest --config jestconfig.json"
   },
   "repository": {
@@ -33,6 +33,7 @@
     "@types/node": "^18.0.3",
     "jest": "^28.1.2",
     "prettier": "^2.7.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^28.0.5",
     "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
