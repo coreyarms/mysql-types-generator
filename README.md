@@ -33,19 +33,27 @@ generateMysqlTypes({
 })
 ```
 
-Run this file after running your database migrations:
+- `db` : **Required** - the database connection and credentials
+- `output` : **Required** - the path to a directory where all the type files will be created. ***WARNING: This directory will be emptied and overwritten.***
+- `suffix` : Optional - a string appended to the PascalCase Type name
+- `ignoreTables` : Optional - a list of tables to ignore; types won't be generated for these
+
+Run this file after running your database migrations. For example with `knex` :
 
 `package.json`
 ```
 (...)
   "scripts": {
-    "migrate:dev": "npm run build && env-cmd npx knex migrate:latest && node src/db/updateTypes.js"
+    "migrate:dev": "npm run build && npx knex migrate:latest && node src/db/updateTypes.js"
   }
 (...)
 ```
 
-You can use `env-cmd` to load environment variables before running: `env-cmd node src/db/updateTypes.js`
+You can use [env-cmd](https://www.npmjs.com/package/env-cmd) to load environment variables from a `.env` file before running: `env-cmd node src/db/updateTypes.js`
 
 ## Notes
 - `TINYINT` data type is always assumed to be `boolean`
 - `SET` data type is treated as a simple string because `knex` returns a comma-delimited string in queries. You need to manually split it by comma if you want to convert it to an array or javascript `Set<>` type.
+
+## Dependencies
+- [mysql2](https://www.npmjs.com/package/mysql2)
