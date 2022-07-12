@@ -1,0 +1,1 @@
+export { generateMysqlTypes } from './generateMysqlTypes';
