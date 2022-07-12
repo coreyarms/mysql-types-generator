@@ -25,7 +25,7 @@ generateMysqlTypes({
   output: {
     path: 'src/db/types',
   },
-  suffix: 'DBO',
+  suffix: 'PO',
   ignoreTables: [
     'my_table_a',
     'my_table_b',
@@ -35,7 +35,7 @@ generateMysqlTypes({
 
 - `db` : **Required** - the database connection and credentials
 - `output` : **Required** - the path to a directory where all the type files will be created. ***WARNING: This directory will be emptied and overwritten.***
-- `suffix` : Optional - a string appended to the PascalCase Type name
+- `suffix` : Optional - a string appended to the PascalCase Type name (`PO` in the example refers to `Persistence Object` but you should use whatever convention you wish)
 - `ignoreTables` : Optional - a list of tables to ignore; types won't be generated for these
 
 Run this file after running your database migrations. For example with `knex` :
