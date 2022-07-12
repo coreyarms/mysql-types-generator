@@ -30,7 +30,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
   // get all tables
   let [tables] = (await connection.execute(
-    `SELECT table_name FROM information_schema.tables WHERE table_schema = '?'`,
+    `SELECT table_name FROM information_schema.tables WHERE table_schema = ?`,
     [config.db.database],
   )) as any;
 
@@ -53,7 +53,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   if (fs.existsSync(config.output.path)) {
     fs.rmSync(config.output.path, { recursive: true });
   }
-  fs.mkdirSync(config.output.path);
+  fs.mkdirSync(config.output.path, { recursive: true });
 
   // start making the index file
   const indexFileStream = fs.createWriteStream(`${config.output.path}/index.ts`, 'utf-8');
@@ -68,7 +68,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // get the columns
     const [columns] = (await connection.execute(
-      `SELECT column_name, data_type, column_type FROM information_schema.columns WHERE table_schema = '?' and table_name = '?'`,
+      `SELECT column_name, data_type, column_type FROM information_schema.columns WHERE table_schema = ? and table_name = ?`,
       [config.db.database, table],
     )) as any;
 
@@ -77,15 +77,18 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     outputTypeFileStream.write(`export type ${typeName} = {\n`);
 
     // output the columns and types
-    columns.forEach((column: { COLUMN_NAME: string; DATA_TYPE: string; COLUMN_TYPE: string }) => {
+    for (const column of columns) {
       outputTypeFileStream.write(
         `  ${column.COLUMN_NAME}: ${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)};\n`,
       );
-    });
+    }
     outputTypeFileStream.write('}\n');
 
     // write the type file
-    outputTypeFileStream.end();
+    await new Promise((resolve, reject) => {
+      outputTypeFileStream.on('finish', resolve);
+      outputTypeFileStream.end();
+    })
 
     // add type to index file
     indexFileStream.write(`export type { ${typeName} } from './${typeName}'\n`);
@@ -93,5 +96,8 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
   // write the index file
   indexFileStream.write('\n');
-  indexFileStream.end();
+  await new Promise((resolve, reject) => {
+    indexFileStream.on('finish', resolve);
+    indexFileStream.end();
+  })
 };
