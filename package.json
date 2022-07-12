@@ -8,10 +8,10 @@
     "dist/**/*"
   ],
   "scripts": {
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
-    "preversion": "npm test && npm run lint",
-    "version": "npm run format && git add -A src",
+    "prep": "npm test && npm run lint && npm run format && npm run build",
+    "prepublishOnly": "npm run prep",
+    "preversion": "npm run prep",
+    "version": "npm run prep && git add -A src",
     "postversion": "git push && git push --tags",
     "format": "prettier --write src/**/*.ts tests/**/*.ts",
     "lint": "tslint -p tsconfig.json",
