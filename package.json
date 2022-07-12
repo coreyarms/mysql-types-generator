@@ -1,6 +1,6 @@
 {
   "name": "mysql-types-generator",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Generate Typescript types from a MySQL database",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
