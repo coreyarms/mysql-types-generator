@@ -29,10 +29,9 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   });
 
   // get all tables
-  let [tables] = (await connection.execute(
-    `SELECT table_name FROM information_schema.tables WHERE table_schema = ?`,
-    [config.db.database],
-  )) as any;
+  let [tables] = (await connection.execute(`SELECT table_name FROM information_schema.tables WHERE table_schema = ?`, [
+    config.db.database,
+  ])) as any;
 
   // filter default ignored tables
   tables = tables
@@ -88,7 +87,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     await new Promise((resolve, reject) => {
       outputTypeFileStream.on('finish', resolve);
       outputTypeFileStream.end();
-    })
+    });
 
     // add type to index file
     indexFileStream.write(`export type { ${typeName} } from './${typeName}'\n`);
@@ -99,5 +98,5 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   await new Promise((resolve, reject) => {
     indexFileStream.on('finish', resolve);
     indexFileStream.end();
-  })
+  });
 };
