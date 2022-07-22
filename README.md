@@ -30,6 +30,13 @@ generateMysqlTypes({
     'my_table_a',
     'my_table_b',
   ],
+  overrides: [
+    {
+      tableName: 'my_table',
+      columnName: 'my_column',
+      columnType: 'json'
+    }
+  ]
 })
 ```
 
@@ -37,6 +44,8 @@ generateMysqlTypes({
 - `output` : **Required** - the path to a directory where all the type files will be created. ***WARNING: This directory will be emptied and overwritten.***
 - `suffix` : Optional - a string appended to the PascalCase Type name (`PO` in the example refers to `Persistence Object` but you should use whatever convention you wish)
 - `ignoreTables` : Optional - a list of tables to ignore; types won't be generated for these
+- `overrides` : Optional - a list of columns where the column type in the database is ignored and the specified `columnType` is used instead
+  - `columnType` can be any of the `mysql` column types, e.g. `varchar`, `json`, etc. Check the file `src/getColumnDataType.ts` in this repo for a list
 
 Run this file after running your database migrations. For example with `knex` :
 

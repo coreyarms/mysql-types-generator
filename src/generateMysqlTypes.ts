@@ -16,6 +16,11 @@ export type GenerateMysqlTypesConfig = {
   };
   suffix?: string;
   ignoreTables?: string[];
+  overrides?: {
+    tableName: string;
+    columnName: string;
+    columnType: string;
+  }[];
 };
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
@@ -77,8 +82,15 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // output the columns and types
     for (const column of columns) {
+      let columnDataType = getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE);
+      
+      const columnOverride = config.overrides?.find((override) => override.tableName === table && override.columnName === column.COLUMN_NAME);
+      if (columnOverride) {
+        columnDataType = getColumnDataType(column.DATA_TYPE, columnOverride.columnType);
+      }
+
       outputTypeFileStream.write(
-        `  ${column.COLUMN_NAME}: ${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)};\n`,
+        `  ${column.COLUMN_NAME}: ${columnDataType};\n`,
       );
     }
     outputTypeFileStream.write('}\n');
