@@ -23,7 +23,7 @@ generateMysqlTypes({
     database: 'mydatabase'
   },
   output: {
-    path: 'src/db/types',
+    path: 'src/db/types', // or e.g. 'src/db/types.ts' for a single file output
   },
   suffix: 'PO',
   ignoreTables: [
@@ -33,19 +33,29 @@ generateMysqlTypes({
   overrides: [
     {
       tableName: 'my_table',
+      columnName: 'my_actual_tinyint_column',
+      columnType: 'int',
+    },
+    {
+      tableName: 'my_table',
       columnName: 'my_column',
-      columnType: 'json'
+      columnType: 'enum',
+      enumString: `enum('a','b','c')`
     }
   ]
 })
 ```
 
 - `db` : **Required** - the database connection and credentials
-- `output` : **Required** - the path to a directory where all the type files will be created. ***WARNING: This directory will be emptied and overwritten.***
+- `output` : **Required** - the path to the output directory or file
+  - if `output` is a directory, each type will be output in a separate file in this directory, along with an `index.ts`. ***WARNING: This directory will be emptied and overwritten if it already exists.***
+  - if `output` is a file (ending in `.ts`), all types will be put into that single file. ***WARNING: This file will be overwritten if it already exists.***
 - `suffix` : Optional - a string appended to the PascalCase Type name (`PO` in the example refers to `Persistence Object` but you should use whatever convention you wish)
 - `ignoreTables` : Optional - a list of tables to ignore; types won't be generated for these
 - `overrides` : Optional - a list of columns where the column type in the database is ignored and the specified `columnType` is used instead
-  - `columnType` can be any of the `mysql` column types, e.g. `varchar`, `json`, etc. Check the file `src/getColumnDataType.ts` in this repo for a list
+  - `columnType` can be any of the `mysql` column types, e.g. `'varchar'`, `'json'`, etc. Check the file `src/getColumnDataType.ts` in this repo for a list
+    - if `columnType` = `'enum'`, you should specify `enumString`
+  - `enumString` : Optional unless `columnType` = `'enum'`. Specify the enum options, for example `enum('a','b','c')` will become `"a" | "b" | "c"`
 
 Run this file after running your database migrations. For example with `knex` :
 
@@ -66,3 +76,10 @@ You can use [env-cmd](https://www.npmjs.com/package/env-cmd) to load environment
 
 ## Dependencies
 - [mysql2](https://www.npmjs.com/package/mysql2)
+
+## Change Log
+
+- `0.0.11`
+  - Bugfix: `overrides` config option wasn't working properly
+  - Added feature: `output` can now be a path to a single file instead of a directory
+  - Added feature: output files now contain a warning comment at the top to indicate that the file was auto-generated and will be overwritten

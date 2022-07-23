@@ -1,7 +1,9 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import * as mysql from 'mysql2/promise';
 
 import { getColumnDataType } from './getColumnDataType';
+import { writeToFile } from './writeToFile';
 
 export type GenerateMysqlTypesConfig = {
   db: {
@@ -20,6 +22,7 @@ export type GenerateMysqlTypesConfig = {
     tableName: string;
     columnName: string;
     columnType: string;
+    enumString?: string;
   }[];
 };
 
@@ -53,15 +56,23 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     return;
   }
 
-  // create empty output directory
+  // check if types should be split into separate files
+  let splitIntoFiles = true;
+  if (config.output.path.slice(-3) === '.ts') {
+    splitIntoFiles = false;
+  }
+
+  // delete existing output
   if (fs.existsSync(config.output.path)) {
     fs.rmSync(config.output.path, { recursive: true });
   }
-  fs.mkdirSync(config.output.path, { recursive: true });
 
-  // start making the index file
-  const indexFileStream = fs.createWriteStream(`${config.output.path}/index.ts`, 'utf-8');
-
+  // make sure parent folder of output path exists
+  const parentFolder = splitIntoFiles ? config.output.path : path.resolve(config.output.path, '../');
+  if (!fs.existsSync(parentFolder)) {
+    fs.mkdirSync(parentFolder, { recursive: true });
+  }
+  
   // loop through each table
   for (const table of tables) {
     // convert table names from snake case to camel case
@@ -76,43 +87,36 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       [config.db.database, table],
     )) as any;
 
-    // create type file stream
-    const outputTypeFileStream = fs.createWriteStream(`${config.output.path}/${typeName}.ts`, 'utf-8');
-    outputTypeFileStream.write(`export type ${typeName} = {\n`);
+    // define output file
+    const outputTypeFilePath = splitIntoFiles ? `${config.output.path}/${typeName}.ts` : config.output.path;
+    
+    await writeToFile(outputTypeFilePath, `export type ${typeName} = {\n`)
 
     // output the columns and types
     for (const column of columns) {
-      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)}${
-        column.IS_NULLABLE === 'YES' ? ' | null' : ''
-      }`;
+      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)}`;
 
       const columnOverride = config.overrides?.find(
         (override) => override.tableName === table && override.columnName === column.COLUMN_NAME,
       );
       if (columnOverride) {
-        columnDataType = getColumnDataType(column.DATA_TYPE, columnOverride.columnType);
+        columnDataType = getColumnDataType(columnOverride.columnType, columnOverride.columnType === 'enum' ? columnOverride.enumString || 'enum(undefined)' : '');
       }
 
-      outputTypeFileStream.write(`  ${column.COLUMN_NAME}: ${columnDataType};\n`);
+      await writeToFile(outputTypeFilePath, `  ${column.COLUMN_NAME}: ${columnDataType}${column.IS_NULLABLE === 'YES' ? ' | null' : ''};\n`)
     }
-    outputTypeFileStream.write('}\n');
-
-    // write the type file
-    await new Promise((resolve, reject) => {
-      outputTypeFileStream.on('finish', resolve);
-      outputTypeFileStream.end();
-    });
-
+    await writeToFile(outputTypeFilePath, '}\n\n')
+    
     // add type to index file
-    indexFileStream.write(`export type { ${typeName} } from './${typeName}'\n`);
+    if(splitIntoFiles) {
+      await writeToFile(`${config.output.path}/index.ts`, `export type { ${typeName} } from './${typeName}'\n`)
+    }
   }
 
   // write the index file
-  indexFileStream.write('\n');
-  await new Promise((resolve, reject) => {
-    indexFileStream.on('finish', resolve);
-    indexFileStream.end();
-  });
+  if(splitIntoFiles) {
+    await writeToFile(`${config.output.path}/index.ts`, '\n')
+  }
 
   // close the mysql connection
   await connection.end();
