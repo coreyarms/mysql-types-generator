@@ -82,7 +82,9 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // output the columns and types
     for (const column of columns) {
-      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)}${column.IS_NULLABLE === 'YES' ? ' | null' : ''}`;
+      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)}${
+        column.IS_NULLABLE === 'YES' ? ' | null' : ''
+      }`;
 
       const columnOverride = config.overrides?.find(
         (override) => override.tableName === table && override.columnName === column.COLUMN_NAME,
