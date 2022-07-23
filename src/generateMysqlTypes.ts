@@ -72,7 +72,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   if (!fs.existsSync(parentFolder)) {
     fs.mkdirSync(parentFolder, { recursive: true });
   }
-  
+
   // loop through each table
   for (const table of tables) {
     // convert table names from snake case to camel case
@@ -89,8 +89,8 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // define output file
     const outputTypeFilePath = splitIntoFiles ? `${config.output.path}/${typeName}.ts` : config.output.path;
-    
-    await writeToFile(outputTypeFilePath, `export type ${typeName} = {\n`)
+
+    await writeToFile(outputTypeFilePath, `export type ${typeName} = {\n`);
 
     // output the columns and types
     for (const column of columns) {
@@ -100,22 +100,28 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
         (override) => override.tableName === table && override.columnName === column.COLUMN_NAME,
       );
       if (columnOverride) {
-        columnDataType = getColumnDataType(columnOverride.columnType, columnOverride.columnType === 'enum' ? columnOverride.enumString || 'enum(undefined)' : '');
+        columnDataType = getColumnDataType(
+          columnOverride.columnType,
+          columnOverride.columnType === 'enum' ? columnOverride.enumString || 'enum(undefined)' : '',
+        );
       }
 
-      await writeToFile(outputTypeFilePath, `  ${column.COLUMN_NAME}: ${columnDataType}${column.IS_NULLABLE === 'YES' ? ' | null' : ''};\n`)
+      await writeToFile(
+        outputTypeFilePath,
+        `  ${column.COLUMN_NAME}: ${columnDataType}${column.IS_NULLABLE === 'YES' ? ' | null' : ''};\n`,
+      );
     }
-    await writeToFile(outputTypeFilePath, '}\n\n')
-    
+    await writeToFile(outputTypeFilePath, '}\n\n');
+
     // add type to index file
-    if(splitIntoFiles) {
-      await writeToFile(`${config.output.path}/index.ts`, `export type { ${typeName} } from './${typeName}'\n`)
+    if (splitIntoFiles) {
+      await writeToFile(`${config.output.path}/index.ts`, `export type { ${typeName} } from './${typeName}'\n`);
     }
   }
 
   // write the index file
-  if(splitIntoFiles) {
-    await writeToFile(`${config.output.path}/index.ts`, '\n')
+  if (splitIntoFiles) {
+    await writeToFile(`${config.output.path}/index.ts`, '\n');
   }
 
   // close the mysql connection

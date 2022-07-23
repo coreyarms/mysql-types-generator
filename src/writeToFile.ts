@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { warningHeader } from './warningHeader';
 
 export const writeToFile = async (filePath: string, text: string) => {
-  const fileStreamOptions: { encoding: 'utf8', flags?: string; } = { encoding: 'utf8' };
+  const fileStreamOptions: { encoding: 'utf8'; flags?: string } = { encoding: 'utf8' };
 
   let append = false;
   if (fs.existsSync(filePath)) {
@@ -26,4 +26,4 @@ export const writeToFile = async (filePath: string, text: string) => {
     fileStream.on('finish', resolve);
     fileStream.end();
   });
-}
+};
