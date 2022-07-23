@@ -72,7 +72,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // get the columns
     const [columns] = (await connection.execute(
-      `SELECT column_name, data_type, column_type, is_nullable FROM information_schema.columns WHERE table_schema = ? and table_name = ?`,
+      `SELECT column_name, data_type, column_type, is_nullable FROM information_schema.columns WHERE table_schema = ? and table_name = ? ORDER BY ordinal_position ASC`,
       [config.db.database, table],
     )) as any;
 
