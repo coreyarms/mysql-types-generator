@@ -4,6 +4,7 @@ import * as mysql from 'mysql2/promise';
 
 import { getColumnDataType } from './getColumnDataType';
 import { writeToFile } from './writeToFile';
+import { COLUMNS } from './information-schema/COLUMNS';
 
 export type GenerateMysqlTypesConfig = {
   db: {
@@ -38,24 +39,15 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     database: config.db.database,
   });
 
-  // get all tables
-  let [tables] = (await connection.execute('SELECT table_name FROM information_schema.tables WHERE table_schema = ?', [
+  const tables = await getTableNames(
+    connection,
     config.db.database,
-  ])) as any;
-
-  // filter default ignored tables
-  tables = tables
-    .map((table: { TABLE_NAME: string }) => table.TABLE_NAME)
-    .filter((tableName: string) => !tableName.includes('knex_'));
-
-  // filter ignored tables
-  if (config.ignoreTables && config.ignoreTables.length > 0) {
-    tables = tables.filter((tableName: string) => !config.ignoreTables?.includes(tableName));
-  }
+    config.ignoreTables ?? []
+  );
 
   // check if at least one table exists
   if (tables.length === 0) {
-    return;
+    throw new Error(`0 eligible tables found in ${config.db.database}`);
   }
 
   // check the output type
@@ -89,11 +81,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
       .join('')}${config.suffix || ''}`;
 
-    // get the columns
-    const [columns] = (await connection.execute(
-      'SELECT column_name, data_type, column_type, is_nullable, column_comment FROM information_schema.columns WHERE table_schema = ? and table_name = ? ORDER BY ordinal_position ASC',
-      [config.db.database, table],
-    )) as any;
+    const columns = await getColumnInfo(connection, config.db.database, table);
 
     // define output file
     const outputTypeFilePath = splitIntoFiles ? `${outputPath}/${typeName}.ts` : outputPath;
@@ -144,3 +132,34 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   // close the mysql connection
   await connection.end();
 };
+
+async function getTableNames(connection: mysql.Connection, databaseName: string, ignoredTables: string[]): Promise<string[]> {
+
+  const [tables] = (await connection.execute('SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?', [
+    databaseName,
+  ])) as any;
+
+  // filter default ignored tables
+  return tables.map((table: { TABLE_NAME: string }):string => table.TABLE_NAME)
+    .filter((tableName: string) => !tableName.includes('knex_'))
+    .filter((tableName: string) => ignoredTables.includes(tableName));
+
+}
+
+const columnInfoColumns = [
+  'column_name',
+  'data_type',
+  'column_type',
+  'is_nullable',
+  'column_comment'
+] as const;
+
+async function getColumnInfo(connection: mysql.Connection, databaseName: string, tableName: string): Promise<COLUMNS[]> {
+
+  const [result] = await connection.query(
+    'SELECT ?? FROM information_schema.columns WHERE table_schema = ? and table_name = ? ORDER BY ordinal_position ASC',
+    [columnInfoColumns, databaseName, tableName],
+  ) as any;
+  return result;
+}
+
