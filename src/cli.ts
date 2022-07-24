@@ -62,7 +62,7 @@ const { values, positionals } = parseArgs({
 
 if (positionals.length !== 1) {
   help();
-  console.error('This command requires exactly 2 arguments.');
+  console.error('This command requires a \'database name\' argument');
   process.exit(1);
 }
 
