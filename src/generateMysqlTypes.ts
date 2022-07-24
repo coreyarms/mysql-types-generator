@@ -82,8 +82,6 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     fs.mkdirSync(parentFolder, { recursive: true });
   }
 
-
-
   // loop through each table
   for (const table of tables) {
     // convert table names from snake case to camel case

@@ -51,8 +51,7 @@ export const getColumnDataType = (dataType: string, columnType: string): string 
       return 'string';
 
     default:
-      // eslint-disable-next-line no-console
-      console.log('WARNING: unknown data type: ' + dataType);
+      console.error('WARNING: unknown data type: ' + dataType);
       return 'any';
   }
 };
