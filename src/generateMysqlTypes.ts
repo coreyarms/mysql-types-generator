@@ -31,12 +31,6 @@ export type GenerateMysqlTypesConfig = {
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
-  // validate config
-  // TODO- validate with zod?
-  if (!config.output.dir && !config.output.file) {
-    console.error('ERROR: output.dir or output.file is required');
-  }
-
   const tinyintIsBoolean = config.tinyintIsBoolean ?? false;
 
   // connect to db
