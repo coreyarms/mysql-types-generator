@@ -25,7 +25,15 @@
     "type": "git",
     "url": "git+https://github.com/coreyarms/mysql-types-generator.git"
   },
-  "author": "Corey Armstrong",
+  "contributors": [
+    {
+      "name": "Corey Armstrong"
+    },
+    {
+      "name": "Evert Pot",
+      "url": "https://evertpot.com/"
+    }
+  ]
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/coreyarms/mysql-types-generator/issues"
