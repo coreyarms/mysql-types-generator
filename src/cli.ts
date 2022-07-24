@@ -47,6 +47,10 @@ const options: Record<string, CliOption> = {
     type: 'string',
     description: 'When specified, the name of each generated type will end in this name.',
   },
+  tinyintIsBoolean: {
+    type: 'boolean',
+    description: 'When specified, tinyint(1) columns will be treated as boolean. By default they are treated as number.',
+  },
   help: {
     type: 'boolean',
     description: 'This help message',
@@ -81,6 +85,8 @@ if (values.outDir && values.outFile) {
   process.exit(1);
 }
 
+console.info(values.tinyintIsBoolean);
+
 generateMysqlTypes({
   db: {
     host: values.host ?? options.host.default,
@@ -93,6 +99,8 @@ generateMysqlTypes({
   output: values.outFile ? { file: values.outFile } : { dir: values.outDir },
 
   suffix: values.suffix,
+
+  tinyintIsBoolean: values.tinyintIsBoolean,
 });
 
 function help() {
