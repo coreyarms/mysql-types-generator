@@ -101,9 +101,11 @@ Most options from the Javascript API are available, run `npx mysql-types-generat
 - [mysql2](https://www.npmjs.com/package/mysql2)
 
 ## Change Log
+- `1.0.1`
+  - Added feature: `tinyintIsBoolean` config option in CLI
 - `1.0.0`
   - Added feature: CLI / usage with `npx`
-  - Added feature: `tinyintIsBoolean` config option
+  - Added feature: `tinyintIsBoolean` config option in JS API
   - Added feature: mysql column comments are now added as comments in the output files
   - Breaking Change: Changed how the output file / directory is defined in the config
   - Migrated from tslint to eslint
