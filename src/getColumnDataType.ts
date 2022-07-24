@@ -2,6 +2,7 @@ export const getColumnDataType = (dataType: string|null, columnType: string): st
   if (columnType === null) {
     throw new Error('The DATA_TYPE field in information_schema should never be null. This may be a bug');
   }
+
   switch (dataType) {
     case 'int':
     case 'smallint':
@@ -39,7 +40,10 @@ export const getColumnDataType = (dataType: string|null, columnType: string): st
       return 'Buffer';
 
     case 'tinyint':
-      return 'boolean';
+      if (columnType === 'tinyint(1)' && tinyintIsBoolean) {
+        return 'boolean';
+      }
+      return 'number';
 
     case 'json':
       return 'any';

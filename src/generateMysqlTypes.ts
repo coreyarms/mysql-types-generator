@@ -27,9 +27,13 @@ export type GenerateMysqlTypesConfig = {
     columnType: string;
     enumString?: string;
   }[];
+  tinyintIsBoolean?: boolean;
 };
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
+
+  const tinyintIsBoolean = config.tinyintIsBoolean ?? false;
+
   // connect to db
   const connection = await mysql.createConnection({
     host: config.db.host,
@@ -90,7 +94,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // output the columns and types
     for (const column of columns) {
-      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE)}`;
+      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE, tinyintIsBoolean)}`;
 
       const columnOverride = config.overrides?.find(
         (override) => override.tableName === table && override.columnName === column.COLUMN_NAME,
@@ -99,6 +103,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
         columnDataType = getColumnDataType(
           columnOverride.columnType,
           columnOverride.columnType === 'enum' ? columnOverride.enumString || 'enum(undefined)' : '',
+          tinyintIsBoolean
         );
       }
 

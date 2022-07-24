@@ -46,7 +46,8 @@ generateMysqlTypes({
       columnType: 'enum',
       enumString: `enum('a','b','c')`
     }
-  ]
+  ],
+  tinyintIsBoolean: true,
 })
 ```
 
@@ -61,6 +62,9 @@ generateMysqlTypes({
   - `columnType` can be any of the `mysql` column types, e.g. `'varchar'`, `'json'`, etc. Check the file `src/getColumnDataType.ts` in this repo for a list
     - if `columnType` = `'enum'`, you should specify `enumString`
   - `enumString` : Optional unless `columnType` = `'enum'`. Specify the enum options, for example `enum('a','b','c')` will become `'a' | 'b' | 'c'`
+- `tinyintIsBoolean`: Optional. Controls if `tinyint(1)` should be converted to boolean or kept as number. Default is `false`
+  - `true` : convert to boolean
+  - `false` : keep as number (default)
 
 Run this file after running your database migrations. For example with `knex` :
 
@@ -76,13 +80,18 @@ Run this file after running your database migrations. For example with `knex` :
 You can use [env-cmd](https://www.npmjs.com/package/env-cmd) to load environment variables from a `.env` file before running: `env-cmd node src/db/updateTypes.js`
 
 ## Notes
-- `TINYINT` data type is always assumed to be `boolean`
 - `SET` data type is treated as a simple string because `knex` returns a comma-delimited string in queries. You need to manually split it by comma if you want to convert it to an array or javascript `Set<>` type.
 
 ## Dependencies
 - [mysql2](https://www.npmjs.com/package/mysql2)
 
 ## Change Log
+- `1.0.0`
+  - Added feature: CLI / `npx` usage
+  - Added feature: `tinyintIsBoolean` config option
+  - Added feature: mysql column comments are added as comments to the outputs
+  - Changed how the output directory or output file is specified in the config (breaking change)
+  - Switched tslint to eslint
 - `0.0.12`
   - Fixed typos in `README.md`
 - `0.0.11`
