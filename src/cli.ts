@@ -78,7 +78,6 @@ generateMysqlTypes({
     path: positionals[1]
   },
 
-
   suffix: values.suffix,
 
 });
