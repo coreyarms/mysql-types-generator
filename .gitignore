@@ -2,3 +2,6 @@ node_modules
 dist
 testRun.js
 src/db
+
+# vim
+.*.swp
