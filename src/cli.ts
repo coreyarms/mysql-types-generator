@@ -73,7 +73,7 @@ generateMysqlTypes({
   },
 
   output: {
-    path: positionals[1],
+    file: positionals[1],
   },
 
   suffix: values.suffix,

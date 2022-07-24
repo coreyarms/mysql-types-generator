@@ -14,7 +14,8 @@ export type GenerateMysqlTypesConfig = {
     database: string;
   };
   output: {
-    path: string;
+    dir?: string;
+    file?: string;
   };
   suffix?: string;
   ignoreTables?: string[];
@@ -27,6 +28,12 @@ export type GenerateMysqlTypesConfig = {
 };
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
+  // validate config
+  // TODO- validate with zod?
+  if (!config.output.dir && !config.output.file) {
+    console.error('ERROR: output.dir or output.file is required');
+  }
+
   // connect to db
   const connection = await mysql.createConnection({
     host: config.db.host,
@@ -56,22 +63,26 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     return;
   }
 
-  // check if types should be split into separate files
+  // check the output type
+  let outputPath = config.output.dir || '';
   let splitIntoFiles = true;
-  if (config.output.path.slice(-3) === '.ts') {
+  if (config.output.file) {
+    outputPath = config.output.file;
     splitIntoFiles = false;
   }
 
   // delete existing output
-  if (fs.existsSync(config.output.path)) {
-    fs.rmSync(config.output.path, { recursive: true });
+  if (fs.existsSync(outputPath)) {
+    fs.rmSync(outputPath, { recursive: true });
   }
 
   // make sure parent folder of output path exists
-  const parentFolder = splitIntoFiles ? config.output.path : path.resolve(config.output.path, '../');
+  const parentFolder = splitIntoFiles ? outputPath : path.resolve(outputPath, '../');
   if (!fs.existsSync(parentFolder)) {
     fs.mkdirSync(parentFolder, { recursive: true });
   }
+
+
 
   // loop through each table
   for (const table of tables) {
@@ -88,7 +99,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     )) as any;
 
     // define output file
-    const outputTypeFilePath = splitIntoFiles ? `${config.output.path}/${typeName}.ts` : config.output.path;
+    const outputTypeFilePath = splitIntoFiles ? `${outputPath}/${typeName}.ts` : outputPath;
 
     await writeToFile(outputTypeFilePath, `export type ${typeName} = {\n`);
 
@@ -115,13 +126,13 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // add type to index file
     if (splitIntoFiles) {
-      await writeToFile(`${config.output.path}/index.ts`, `export type { ${typeName} } from './${typeName}'\n`);
+      await writeToFile(`${outputPath}/index.ts`, `export type { ${typeName} } from './${typeName}'\n`);
     }
   }
 
   // write the index file
   if (splitIntoFiles) {
-    await writeToFile(`${config.output.path}/index.ts`, '\n');
+    await writeToFile(`${outputPath}/index.ts`, '\n');
   }
 
   // close the mysql connection

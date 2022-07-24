@@ -25,7 +25,9 @@ generateMysqlTypes({
     database: 'mydatabase'
   },
   output: {
-    path: 'src/db/types', // or e.g. 'src/db/types.ts' for a single file output
+    // Specify only one of the following 2 options:
+    dir: 'src/db/types',
+    file: 'src/db/types.ts'
   },
   suffix: 'PO',
   ignoreTables: [
@@ -49,10 +51,10 @@ generateMysqlTypes({
 ```
 
 - `db` : **Required** - the database connection and credentials
-- `output` : **Required**
-  - `path` : **Required** - the path to the output directory or file
-    - if `path` is a directory, each type will be output in a separate file in this directory, along with an `index.ts`. ***WARNING: This directory will be emptied and overwritten if it already exists.***
-    - if `path` is a file (ending in `.ts`), all types will be put into that single file. ***WARNING: This file will be overwritten if it already exists.***
+- `output` : **Required** - you should define one of the following 2 options:
+  - `dir` : Each type will be output in a separate file in this directory, along with an `index.ts`. ***WARNING: This directory will be emptied and overwritten if it already exists.***
+  - `file` : Each type will be output into this single file. ***WARNING: This file will be overwritten if it already exists.***
+  - If both `dir` and `file` are provided, `file` will take precedence.
 - `suffix` : Optional - a string appended to the PascalCase Type name (`PO` in the example refers to `Persistence Object` but you should use whatever convention you wish)
 - `ignoreTables` : Optional - a list of tables to ignore; types won't be generated for these
 - `overrides` : Optional - a list of columns where the column type in the database is ignored and the specified `columnType` is used instead
