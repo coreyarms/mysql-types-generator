@@ -37,7 +37,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   });
 
   // get all tables
-  let [tables] = (await connection.execute(`SELECT table_name FROM information_schema.tables WHERE table_schema = ?`, [
+  let [tables] = (await connection.execute('SELECT table_name FROM information_schema.tables WHERE table_schema = ?', [
     config.db.database,
   ])) as any;
 
@@ -48,7 +48,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
   // filter ignored tables
   if (config.ignoreTables && config.ignoreTables.length > 0) {
-    tables = tables.filter((tableName: string) => !config.ignoreTables!.includes(tableName));
+    tables = tables.filter((tableName: string) => !config.ignoreTables?.includes(tableName));
   }
 
   // check if at least one table exists
@@ -83,7 +83,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // get the columns
     const [columns] = (await connection.execute(
-      `SELECT column_name, data_type, column_type, is_nullable FROM information_schema.columns WHERE table_schema = ? and table_name = ? ORDER BY ordinal_position ASC`,
+      'SELECT column_name, data_type, column_type, is_nullable FROM information_schema.columns WHERE table_schema = ? and table_name = ? ORDER BY ordinal_position ASC',
       [config.db.database, table],
     )) as any;
 
