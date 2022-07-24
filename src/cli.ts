@@ -1,4 +1,3 @@
-// tslint:disable no-console
 
 // @ts-expect-error This is a very new API, and @types/node doesn't have types
 // for this yet.
@@ -30,7 +29,7 @@ const options: Record<string, CliOption> = {
     type: 'string',
     short: 'u',
     description: 'Username (default is the current user)',
-    default: process.env.user, 
+    default: process.env.user,
   },
   password: {
     type: 'string',
@@ -86,7 +85,6 @@ function help() {
 
   const command = 'npx mysql-types-generator';
 
-  // tslint:disable no-console
   console.info(`mysql-types-generator
 
 Usage:
