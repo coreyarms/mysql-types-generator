@@ -73,7 +73,7 @@ generateMysqlTypes({
   },
 
   output: {
-    file: positionals[1],
+    file: positionals[1], // TODO - temporary just to make the build run
   },
 
   suffix: values.suffix,
