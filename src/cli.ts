@@ -10,10 +10,9 @@ type CliOption = {
   short?: string;
   description?: string;
   default?: string;
-}
+};
 
 const options: Record<string, CliOption> = {
-
   host: {
     type: 'string',
     short: 'h',
@@ -30,7 +29,7 @@ const options: Record<string, CliOption> = {
     type: 'string',
     short: 'u',
     description: 'Username (default is the current user)',
-    default: process.env.user, 
+    default: process.env.user,
   },
   password: {
     type: 'string',
@@ -45,8 +44,7 @@ const options: Record<string, CliOption> = {
   help: {
     type: 'boolean',
     description: 'This help message',
-  }
-
+  },
 };
 
 const { values, positionals } = parseArgs({
@@ -75,15 +73,13 @@ generateMysqlTypes({
   },
 
   output: {
-    path: positionals[1]
+    path: positionals[1],
   },
 
   suffix: values.suffix,
-
 });
 
 function help() {
-
   const command = 'npx mysql-types-generator';
 
   // tslint:disable no-console
@@ -94,11 +90,9 @@ Usage:
   ${command} [mysql databasename] [output directory]
 
 Options:`);
-  for(const [key, option] of Object.entries(options)) {
+  for (const [key, option] of Object.entries(options)) {
     console.info(`
-  --${key}${option.short?' -' + option.short:''}
+  --${key}${option.short ? ' -' + option.short : ''}
       ${option.description}`);
   }
-
 }
-
