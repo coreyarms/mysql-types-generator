@@ -13,10 +13,11 @@ export type GenerateMysqlTypesConfig = {
     password: string;
     database: string;
   };
-  output: {
-    dir?: string;
-    file?: string;
-  };
+  output: ({
+    dir: string;
+  }) | ({
+    file: string;
+  });
   suffix?: string;
   ignoreTables?: string[];
   overrides?: {
@@ -28,12 +29,6 @@ export type GenerateMysqlTypesConfig = {
 };
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
-  // validate config
-  // TODO- validate with zod?
-  if (!config.output.dir && !config.output.file) {
-    console.error('ERROR: output.dir or output.file is required');
-  }
-
   // connect to db
   const connection = await mysql.createConnection({
     host: config.db.host,
@@ -64,11 +59,15 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   }
 
   // check the output type
-  let outputPath = config.output.dir || '';
-  let splitIntoFiles = true;
-  if (config.output.file) {
+  let outputPath;
+  let splitIntoFiles;
+
+  if ('file' in config.output) {
     outputPath = config.output.file;
     splitIntoFiles = false;
+  } else {
+    outputPath = config.output.dir || '';
+    splitIntoFiles = true;
   }
 
   // delete existing output
