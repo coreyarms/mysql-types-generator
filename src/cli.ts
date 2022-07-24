@@ -49,7 +49,8 @@ const options: Record<string, CliOption> = {
   },
   tinyintIsBoolean: {
     type: 'boolean',
-    description: 'When specified, tinyint(1) columns will be treated as boolean. By default they are treated as number.',
+    description:
+      'When specified, tinyint(1) columns will be treated as boolean. By default they are treated as number.',
   },
   help: {
     type: 'boolean',
