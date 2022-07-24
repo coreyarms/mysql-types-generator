@@ -85,8 +85,6 @@ if (values.outDir && values.outFile) {
   process.exit(1);
 }
 
-console.info(values.tinyintIsBoolean);
-
 generateMysqlTypes({
   db: {
     host: values.host ?? options.host.default,
