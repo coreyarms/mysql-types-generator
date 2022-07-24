@@ -142,7 +142,7 @@ async function getTableNames(connection: mysql.Connection, databaseName: string,
   // filter default ignored tables
   return tables.map((table: { TABLE_NAME: string }):string => table.TABLE_NAME)
     .filter((tableName: string) => !tableName.includes('knex_'))
-    .filter((tableName: string) => ignoredTables.includes(tableName));
+    .filter((tableName: string) => !ignoredTables.includes(tableName));
 
 }
 
