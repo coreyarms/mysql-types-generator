@@ -8,6 +8,10 @@ Table names in the database must be in snake_case and will be converted to Pasca
 
 ## Usage
 
+The tool can be used with the javascript API or as a CLI with `npx`.
+
+### Javascript API
+
 Create a file to configure and run the generator:
 
 `src/db/updateTypes.js`
@@ -77,6 +81,19 @@ Run this file after running your database migrations. For example with `knex` :
 
 You can use [env-cmd](https://www.npmjs.com/package/env-cmd) to load environment variables from a `.env` file before running: `env-cmd node src/db/updateTypes.js`
 
+### CLI
+
+```
+npx mysql-types-generator [options] --outFile [output file] [database name]
+npx mysql-types-generator [options] --outDir [output directory] [database name]
+
+// example
+npx mysql-types-generator -h localhost -P 3306 -u myuser -p mypassword --outFile ./src/db/types.ts mydatabase
+
+```
+
+Most options from the Javascript API are available, run `npx mysql-types-generator --help` for details
+
 ## Notes
 - `SET` data type is treated as a simple string because `knex` returns a comma-delimited string in queries. You need to manually split it by comma if you want to convert it to an array or javascript `Set<>` type.
 
@@ -85,11 +102,11 @@ You can use [env-cmd](https://www.npmjs.com/package/env-cmd) to load environment
 
 ## Change Log
 - `1.0.0`
-  - Added feature: CLI / `npx` usage
+  - Added feature: CLI / usage with `npx`
   - Added feature: `tinyintIsBoolean` config option
-  - Added feature: mysql column comments are added as comments to the outputs
-  - Changed how the output directory or output file is specified in the config (breaking change)
-  - Switched tslint to eslint
+  - Added feature: mysql column comments are now added as comments in the output files
+  - Breaking Change: Changed how the output file / directory is defined in the config
+  - Migrated from tslint to eslint
 - `0.0.12`
   - Fixed typos in `README.md`
 - `0.0.11`
