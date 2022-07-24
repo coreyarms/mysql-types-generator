@@ -1,4 +1,4 @@
-export const getColumnDataType = (dataType: string, columnType: string): string => {
+export const getColumnDataType = (dataType: string, columnType: string, tinyintIsBoolean: boolean): string => {
   switch (dataType) {
     case 'int':
     case 'smallint':
@@ -36,7 +36,10 @@ export const getColumnDataType = (dataType: string, columnType: string): string 
       return 'Buffer';
 
     case 'tinyint':
-      return 'boolean';
+      if (columnType === 'tinyint(1)' && tinyintIsBoolean) {
+        return 'boolean';
+      }
+      return 'number';
 
     case 'json':
       return 'any';
