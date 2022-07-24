@@ -1,4 +1,3 @@
-// tslint:disable no-console
 
 // @ts-expect-error This is a very new API, and @types/node doesn't have types
 // for this yet.
@@ -82,7 +81,6 @@ generateMysqlTypes({
 function help() {
   const command = 'npx mysql-types-generator';
 
-  // tslint:disable no-console
   console.info(`mysql-types-generator
 
 Usage:
