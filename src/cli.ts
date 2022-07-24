@@ -60,6 +60,11 @@ const { values, positionals } = parseArgs({
   strict: true,
 });
 
+if (values.help) {
+  help();
+  process.exit(0);
+}
+
 if (positionals.length !== 1) {
   help();
   console.error('This command requires a \'database name\' argument');
@@ -77,10 +82,7 @@ if (values.outDir && values.outFile) {
   process.exit(1);
 }
 
-if (values.help) {
-  help();
-  process.exit(0);
-}
+
 
 generateMysqlTypes({
   db: {
