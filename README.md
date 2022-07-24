@@ -2,8 +2,6 @@
 
 [![npm](https://img.shields.io/npm/v/mysql-types-generator)](https://www.npmjs.com/package/mysql-types-generator) [![install size](https://packagephobia.com/badge?p=mysql-types-generator)](https://packagephobia.com/result?p=mysql-types-generator)
 
-**Warning: This library is incomplete; it works for some personal projects and is updated as issues are found. Use at your own risk.**
-
 Inspects a mysql database and generates Typescript types for each table. Useful when you are using `knex` or raw mysql clients instead of an ORM.
 
 Table names in the database must be in snake_case and will be converted to PascalCase for type names.
