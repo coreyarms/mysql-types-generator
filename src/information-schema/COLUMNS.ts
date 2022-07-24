@@ -26,5 +26,4 @@ export type COLUMNS = {
   COLUMN_COMMENT: string;
   GENERATION_EXPRESSION: string;
   SRS_ID: number | null;
-}
-
+};

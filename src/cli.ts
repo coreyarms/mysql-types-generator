@@ -11,14 +11,13 @@ type CliOption = {
 };
 
 const options: Record<string, CliOption> = {
-
   outFile: {
     type: 'string',
-    description: 'If specified, all output will be written to this file.'
+    description: 'If specified, all output will be written to this file.',
   },
   outDir: {
     type: 'string',
-    description: 'If specified, one .ts file will be created for each MySQL table in this directory.'
+    description: 'If specified, one .ts file will be created for each MySQL table in this directory.',
   },
   host: {
     type: 'string',
@@ -67,7 +66,7 @@ if (values.help) {
 
 if (positionals.length !== 1) {
   help();
-  console.error('This command requires a \'database name\' argument');
+  console.error("This command requires a 'database name' argument");
   process.exit(1);
 }
 
@@ -82,8 +81,6 @@ if (values.outDir && values.outFile) {
   process.exit(1);
 }
 
-
-
 generateMysqlTypes({
   db: {
     host: values.host ?? options.host.default,
@@ -93,9 +90,7 @@ generateMysqlTypes({
     database: positionals[0],
   },
 
-  output: values.outFile ?
-    {file: values.outFile} :
-    {dir: values.outDir},
+  output: values.outFile ? { file: values.outFile } : { dir: values.outDir },
 
   suffix: values.suffix,
 });

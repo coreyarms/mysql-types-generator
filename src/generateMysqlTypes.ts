@@ -14,11 +14,13 @@ export type GenerateMysqlTypesConfig = {
     password: string;
     database: string;
   };
-  output: ({
-    dir: string;
-  }) | ({
-    file: string;
-  });
+  output:
+    | {
+        dir: string;
+      }
+    | {
+        file: string;
+      };
   suffix?: string;
   ignoreTables?: string[];
   overrides?: {
@@ -31,7 +33,6 @@ export type GenerateMysqlTypesConfig = {
 };
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
-
   const tinyintIsBoolean = config.tinyintIsBoolean ?? false;
 
   // connect to db
@@ -43,11 +44,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
     database: config.db.database,
   });
 
-  const tables = await getTableNames(
-    connection,
-    config.db.database,
-    config.ignoreTables ?? []
-  );
+  const tables = await getTableNames(connection, config.db.database, config.ignoreTables ?? []);
 
   // check if at least one table exists
   if (tables.length === 0) {
@@ -103,7 +100,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
         columnDataType = getColumnDataType(
           columnOverride.columnType,
           columnOverride.columnType === 'enum' ? columnOverride.enumString || 'enum(undefined)' : '',
-          tinyintIsBoolean
+          tinyintIsBoolean,
         );
       }
 
@@ -138,33 +135,33 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   await connection.end();
 };
 
-async function getTableNames(connection: mysql.Connection, databaseName: string, ignoredTables: string[]): Promise<string[]> {
-
-  const [tables] = (await connection.execute('SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?', [
-    databaseName,
-  ])) as any;
+async function getTableNames(
+  connection: mysql.Connection,
+  databaseName: string,
+  ignoredTables: string[],
+): Promise<string[]> {
+  const [tables] = (await connection.execute(
+    'SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?',
+    [databaseName],
+  )) as any;
 
   // filter default ignored tables
-  return tables.map((table: { TABLE_NAME: string }):string => table.TABLE_NAME)
+  return tables
+    .map((table: { TABLE_NAME: string }): string => table.TABLE_NAME)
     .filter((tableName: string) => !tableName.includes('knex_'))
     .filter((tableName: string) => !ignoredTables.includes(tableName));
-
 }
 
-const columnInfoColumns = [
-  'column_name',
-  'data_type',
-  'column_type',
-  'is_nullable',
-  'column_comment'
-] as const;
+const columnInfoColumns = ['column_name', 'data_type', 'column_type', 'is_nullable', 'column_comment'] as const;
 
-async function getColumnInfo(connection: mysql.Connection, databaseName: string, tableName: string): Promise<COLUMNS[]> {
-
-  const [result] = await connection.query(
+async function getColumnInfo(
+  connection: mysql.Connection,
+  databaseName: string,
+  tableName: string,
+): Promise<COLUMNS[]> {
+  const [result] = (await connection.query(
     'SELECT ?? FROM information_schema.columns WHERE table_schema = ? and table_name = ? ORDER BY ordinal_position ASC',
     [columnInfoColumns, databaseName, tableName],
-  ) as any;
+  )) as any;
   return result;
 }
-
