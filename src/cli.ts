@@ -85,7 +85,7 @@ generateMysqlTypes({
 
 function help() {
 
-  const command = process.argv[0]; 
+  const command = 'npx mysql-types-generator';
 
   // tslint:disable no-console
   console.info(`mysql-types-generator
