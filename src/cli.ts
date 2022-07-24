@@ -1,4 +1,3 @@
-
 // @ts-expect-error This is a very new API, and @types/node doesn't have types
 // for this yet.
 import { parseArgs } from 'node:util';
@@ -12,6 +11,15 @@ type CliOption = {
 };
 
 const options: Record<string, CliOption> = {
+
+  outFile: {
+    type: 'string',
+    description: 'If specified, all output will be written to this file.'
+  },
+  outDir: {
+    type: 'string',
+    description: 'If specified, one .ts file will be created for each MySQL table in this directory.'
+  },
   host: {
     type: 'string',
     short: 'h',
@@ -52,11 +60,23 @@ const { values, positionals } = parseArgs({
   strict: true,
 });
 
-if (positionals.length !== 2) {
+if (positionals.length !== 1) {
   help();
-  console.error('This command requires exactly 2 arguments');
+  console.error('This command requires a \'database name\' argument');
   process.exit(1);
 }
+
+if (!values.outDir && !values.outFile) {
+  help();
+  console.error('Either --outFile or --outDir must be specified.');
+  process.exit(1);
+}
+if (values.outDir && values.outFile) {
+  help();
+  console.error('The --outDir and --outFile options are mutually exclusive. Choose one!');
+  process.exit(1);
+}
+
 if (values.help) {
   help();
   process.exit(0);
@@ -71,9 +91,9 @@ generateMysqlTypes({
     database: positionals[0],
   },
 
-  output: {
-    path: positionals[1],
-  },
+  output: values.outFile ?
+    {file: values.outFile} :
+    {dir: values.outDir},
 
   suffix: values.suffix,
 });
@@ -84,8 +104,8 @@ function help() {
   console.info(`mysql-types-generator
 
 Usage:
-  ${command} [mysql databasename] [output file].ts
-  ${command} [mysql databasename] [output directory]
+  ${command} --outFile [output file] [database name]
+  ${command} --outDir [output directory] [database name]
 
 Options:`);
   for (const [key, option] of Object.entries(options)) {
