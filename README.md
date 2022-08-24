@@ -15,17 +15,33 @@ The tool can be used with the javascript API or as a CLI with `npx`.
 Create a file to configure and run the generator:
 
 `src/db/updateTypes.js`
+
 ```
 import { generateMysqlTypes } from 'mysql-types-generator';
 
+const dbConfig = {
+  host: 'localhost',
+  port: 3306,
+  user: 'myuser',
+  password: 'mypassword',
+  database: 'mydatabase',
+  ssl: {
+    rejectUnauthorized: true
+  }
+};
+
+// OR
+
+const dbConfig = {
+  uri: 'mysql://myuser:mypassword@localhost:3306/mydatabase',
+  database: 'mydatabase',
+  ssl: {
+    rejectUnauthorized: true
+  }
+};
+
 generateMysqlTypes({
-  db: {
-    host: 'localhost',
-    port: 3306,
-    user: 'myuser',
-    password: 'mypassword',
-    database: 'mydatabase'
-  },
+  db: dbConfig,
   output: {
     // Specify only one of the following 2 options:
     dir: 'src/db/types',
@@ -54,9 +70,11 @@ generateMysqlTypes({
 ```
 
 - `db` : **Required** - the database connection and credentials
+  - `ssl` is optional. Defaults to the `mysql2` default.
+  - if `uri` is specified, the host, port, username and password options are ignored.
 - `output` : **Required** - you should define one of the following 2 options:
-  - `dir` : Each type will be output in a separate file in this directory, along with an `index.ts`. ***WARNING: This directory will be emptied and overwritten if it already exists.***
-  - `file` : Each type will be output into this single file. ***WARNING: This file will be overwritten if it already exists.***
+  - `dir` : Each type will be output in a separate file in this directory, along with an `index.ts`. **_WARNING: This directory will be emptied and overwritten if it already exists._**
+  - `file` : Each type will be output into this single file. **_WARNING: This file will be overwritten if it already exists._**
   - If both `dir` and `file` are provided, `file` will take precedence.
 - `suffix` : Optional - a string appended to the PascalCase Type name (`PO` in the example refers to `Persistence Object` but you should use whatever convention you wish)
 - `ignoreTables` : Optional - a list of tables to ignore; types won't be generated for these
@@ -71,6 +89,7 @@ generateMysqlTypes({
 Run this file after running your database migrations. For example with `knex` :
 
 `package.json`
+
 ```
 (...)
   "scripts": {
@@ -95,12 +114,18 @@ npx mysql-types-generator -h localhost -P 3306 -u myuser -p mypassword --outFile
 Most options from the Javascript API are available, run `npx mysql-types-generator --help` for details
 
 ## Notes
+
 - `SET` data type is treated as a simple string because `knex` returns a comma-delimited string in queries. You need to manually split it by comma if you want to convert it to an array or javascript `Set<>` type.
 
 ## Dependencies
+
 - [mysql2](https://www.npmjs.com/package/mysql2)
 
 ## Change Log
+
+- `1.0.2`
+  - Added feature: Specify connection using a `uri` (e.g. `mysql://user:password@host:port/database`)
+  - Added feature: Specify SSL options (see [mysql2 SslOptions](https://github.com/sidorares/node-mysql2/blob/master/typings/mysql/lib/Connection.d.ts))
 - `1.0.1`
   - Added feature: `tinyintIsBoolean` config option in CLI
 - `1.0.0`

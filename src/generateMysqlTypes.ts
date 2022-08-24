@@ -5,15 +5,24 @@ import * as mysql from 'mysql2/promise';
 import { getColumnDataType } from './getColumnDataType';
 import { writeToFile } from './writeToFile';
 import { COLUMNS } from './information-schema/COLUMNS';
+import type { SslOptions } from 'mysql2';
 
 export type GenerateMysqlTypesConfig = {
-  db: {
-    host: string;
-    port?: number;
-    user: string;
-    password: string;
-    database: string;
-  };
+  db:
+    | (
+        | {
+            host: string;
+            port?: number;
+            user: string;
+            password: string;
+          }
+        | {
+            uri: string;
+          }
+      ) & {
+        database: string;
+        ssl?: SslOptions;
+      };
   output:
     | {
         dir: string;
@@ -36,13 +45,24 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   const tinyintIsBoolean = config.tinyintIsBoolean ?? false;
 
   // connect to db
-  const connection = await mysql.createConnection({
-    host: config.db.host,
-    port: config.db.port || 3306,
-    user: config.db.user,
-    password: config.db.password,
-    database: config.db.database,
-  });
+  let connectionConfig: mysql.ConnectionOptions;
+  if ('uri' in config.db) {
+    connectionConfig = {
+      uri: config.db.uri,
+      database: config.db.database,
+      ssl: config.db.ssl,
+    };
+  } else {
+    connectionConfig = {
+      host: config.db.host,
+      port: config.db.port || 3306,
+      user: config.db.user,
+      password: config.db.password,
+      database: config.db.database,
+      ssl: config.db.ssl,
+    };
+  }
+  const connection = await mysql.createConnection(connectionConfig);
 
   const tables = await getTableNames(connection, config.db.database, config.ignoreTables ?? []);
 
