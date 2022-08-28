@@ -102,6 +102,8 @@ You can use [env-cmd](https://www.npmjs.com/package/env-cmd) to load environment
 
 ### CLI
 
+**NOTE: node v18.3 or greater is required to use the CLI as it uses `parseArgs` from `node:util` under the hood**
+
 ```
 npx mysql-types-generator [options] --outFile [output file] [database name]
 npx mysql-types-generator [options] --outDir [output directory] [database name]
@@ -123,6 +125,8 @@ Most options from the Javascript API are available, run `npx mysql-types-generat
 
 ## Change Log
 
+- `1.0.3`
+  - Updated `README.md` to indicate that node v18.3 or greater is required to use the CLI
 - `1.0.2`
   - Added feature: Specify connection using a `uri` (e.g. `mysql://user:password@host:port/database`)
   - Added feature: Specify SSL options (see [mysql2 SslOptions](https://github.com/sidorares/node-mysql2/blob/master/typings/mysql/lib/Connection.d.ts))
