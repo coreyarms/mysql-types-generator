@@ -3,6 +3,13 @@
 import { parseArgs } from 'node:util';
 import { generateMysqlTypes } from './generateMysqlTypes';
 
+const nodeVersion = process.version.match(/^v(\d+\.\d+)/)![1];
+const nodeVersionNumber = parseFloat(nodeVersion);
+if (nodeVersionNumber < 18.3) {
+  console.error(`Node v18.3.0 or higher is required to use this CLI (detected ${process.version})`);
+  process.exit(1);
+}
+
 type CliOption = {
   type: 'string' | 'boolean';
   short?: string;
