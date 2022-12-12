@@ -142,7 +142,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     // add type to index file
     if (splitIntoFiles) {
-      await writeToFile(`${outputPath}/index.ts`, `export type { ${typeName} } from './${typeName};'\n`);
+      await writeToFile(`${outputPath}/index.ts`, `export type { ${typeName} } from './${typeName}';\n`);
     }
   }
 
