@@ -147,9 +147,9 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   }
 
   // write the index file
-  if (splitIntoFiles) {
-    await writeToFile(`${outputPath}/index.ts`, '\n');
-  }
+  // if (splitIntoFiles) {
+  //   await writeToFile(`${outputPath}/index.ts`, '\n');
+  // }
 
   // close the mysql connection
   await connection.end();
