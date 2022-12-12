@@ -138,11 +138,11 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
         `${comment}  ${column.COLUMN_NAME}: ${columnDataType}${column.IS_NULLABLE === 'YES' ? ' | null' : ''};\n`,
       );
     }
-    await writeToFile(outputTypeFilePath, '}\n\n');
+    await writeToFile(outputTypeFilePath, '};\n\n');
 
     // add type to index file
     if (splitIntoFiles) {
-      await writeToFile(`${outputPath}/index.ts`, `export type { ${typeName} } from './${typeName}'\n`);
+      await writeToFile(`${outputPath}/index.ts`, `export type { ${typeName} } from './${typeName};'\n`);
     }
   }
 
