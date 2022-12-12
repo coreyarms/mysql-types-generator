@@ -138,7 +138,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
         `${comment}  ${column.COLUMN_NAME}: ${columnDataType}${column.IS_NULLABLE === 'YES' ? ' | null' : ''};\n`,
       );
     }
-    await writeToFile(outputTypeFilePath, '};\n\n');
+    await writeToFile(outputTypeFilePath, '};\n');
 
     // add type to index file
     if (splitIntoFiles) {
