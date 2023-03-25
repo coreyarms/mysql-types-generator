@@ -3,10 +3,13 @@
 import { parseArgs } from 'node:util';
 import { generateMysqlTypes } from './generateMysqlTypes';
 
-const [nodeMajorVersion, nodeMinorVersion] = process.version.slice(1).split('.');
-const nodeVersionNumberWithoutPatch = parseFloat(nodeMajorVersion + '.' + nodeMinorVersion);
-if (nodeVersionNumberWithoutPatch < 18.3) {
-  console.error(`Node v18.3 or higher is required to use this CLI (detected v${nodeVersionNumberWithoutPatch})`);
+const [nodeMajorVersion, nodeMinorVersion] = process.version
+  .slice(1)
+  .split('.')
+  .map( part => +part);
+
+if (nodeMajorVersion === 18 && nodeMinorVersion < 3 || nodeMajorVersion < 18) {
+  console.error(`Node v18.3 or higher is required to use this CLI (detected v${process.version})`);
   process.exit(1);
 }
 
