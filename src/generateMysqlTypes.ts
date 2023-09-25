@@ -172,7 +172,7 @@ async function getTableNames(
     .filter((tableName: string) => !ignoredTables.includes(tableName));
 }
 
-const columnInfoColumns = ['column_name', 'data_type', 'column_type', 'is_nullable', 'column_comment'] as const;
+const columnInfoColumns = ['COLUMN_NAME', 'DATA_TYPE', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_COMMENT'] as const;
 
 async function getColumnInfo(
   connection: mysql.Connection,
