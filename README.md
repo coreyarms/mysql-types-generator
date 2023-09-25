@@ -125,6 +125,8 @@ Most options from the Javascript API are available, run `npx mysql-types-generat
 
 ## Change Log
 
+- `1.0.8`
+  - Bugfixes: node version check, MariaDB support, ES2020 target
 - `1.0.3`
   - Updated `README.md` to indicate that node v18.3 or greater is required to use the CLI
 - `1.0.2`
