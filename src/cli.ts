@@ -137,8 +137,8 @@ generateMysqlTypes({
   output: values.outFile
     ? { file: values.outFile }
     : values.outDir
-      ? { dir: values.outDir }
-      : { stream: process.stdout },
+    ? { dir: values.outDir }
+    : { stream: process.stdout },
 
   suffix: values.suffix,
 
