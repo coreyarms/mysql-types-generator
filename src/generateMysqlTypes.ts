@@ -102,8 +102,8 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       'dir' in config.output
         ? `${config.output.dir}/${typeName}.ts`
         : 'file' in config.output
-        ? config.output.file
-        : config.output.stream;
+          ? config.output.file
+          : config.output.stream;
 
     // start outputting the type
     await output(outputDestination, `export type ${typeName} = {\n`);
