@@ -29,9 +29,13 @@ export type GenerateMysqlTypesConfig = {
       }
     | {
         file: string;
+      }
+    | {
+        stream: fs.WriteStream | NodeJS.WritableStream;
       };
   suffix?: string;
   ignoreTables?: string[];
+  includeTables?: string[];
   overrides?: {
     tableName: string;
     columnName: string;
@@ -64,34 +68,23 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   }
   const connection = await mysql.createConnection(connectionConfig);
 
-  const tables = await getTableNames(connection, config.db.database, config.ignoreTables ?? []);
+  const tables = await getTableNames(
+    connection,
+    config.db.database,
+    config.ignoreTables ?? [],
+    config.includeTables ?? [],
+  );
 
   // check if at least one table exists
   if (tables.length === 0) {
     throw new Error(`0 eligible tables found in ${config.db.database}`);
   }
 
-  // check the output type
-  let outputPath;
-  let splitIntoFiles;
-
+  // prepare the output location
   if ('file' in config.output) {
-    outputPath = config.output.file;
-    splitIntoFiles = false;
-  } else {
-    outputPath = config.output.dir || '';
-    splitIntoFiles = true;
-  }
-
-  // delete existing output
-  if (fs.existsSync(outputPath)) {
-    fs.rmSync(outputPath, { recursive: true });
-  }
-
-  // make sure parent folder of output path exists
-  const parentFolder = splitIntoFiles ? outputPath : path.resolve(outputPath, '../');
-  if (!fs.existsSync(parentFolder)) {
-    fs.mkdirSync(parentFolder, { recursive: true });
+    emptyOutputPath(config.output.file, 'file');
+  } else if ('dir' in config.output) {
+    emptyOutputPath(config.output.dir, 'dir');
   }
 
   // loop through each table
@@ -104,10 +97,16 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 
     const columns = await getColumnInfo(connection, config.db.database, table);
 
-    // define output file
-    const outputTypeFilePath = splitIntoFiles ? `${outputPath}/${typeName}.ts` : outputPath;
+    // define output
+    const outputDestination =
+      'dir' in config.output
+        ? `${config.output.dir}/${typeName}.ts`
+        : 'file' in config.output
+          ? config.output.file
+          : config.output.stream;
 
-    await writeToFile(outputTypeFilePath, `export type ${typeName} = {\n`);
+    // start outputting the type
+    await output(outputDestination, `export type ${typeName} = {\n`);
 
     // output the columns and types
     for (const column of columns) {
@@ -133,23 +132,18 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
 `;
       }
 
-      await writeToFile(
-        outputTypeFilePath,
+      await output(
+        outputDestination,
         `${comment}  ${column.COLUMN_NAME}: ${columnDataType}${column.IS_NULLABLE === 'YES' ? ' | null' : ''};\n`,
       );
     }
-    await writeToFile(outputTypeFilePath, '};\n');
+    await output(outputDestination, '};\n');
 
     // add type to index file
-    if (splitIntoFiles) {
-      await writeToFile(`${outputPath}/index.ts`, `export type { ${typeName} } from './${typeName}';\n`);
+    if ('dir' in config.output) {
+      await output(`${config.output.dir}/index.ts`, `export type { ${typeName} } from './${typeName}';\n`);
     }
   }
-
-  // write the index file
-  // if (splitIntoFiles) {
-  //   await writeToFile(`${outputPath}/index.ts`, '\n');
-  // }
 
   // close the mysql connection
   await connection.end();
@@ -159,6 +153,7 @@ async function getTableNames(
   connection: mysql.Connection,
   databaseName: string,
   ignoredTables: string[],
+  includeTables: string[],
 ): Promise<string[]> {
   const [tables] = (await connection.execute(
     'SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?',
@@ -169,7 +164,8 @@ async function getTableNames(
   return tables
     .map((table: { TABLE_NAME: string }): string => table.TABLE_NAME)
     .filter((tableName: string) => !tableName.includes('knex_'))
-    .filter((tableName: string) => !ignoredTables.includes(tableName));
+    .filter((tableName: string) => !ignoredTables.includes(tableName))
+    .filter((tableName: string) => includeTables.length === 0 || includeTables.includes(tableName));
 }
 
 const columnInfoColumns = ['COLUMN_NAME', 'DATA_TYPE', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_COMMENT'] as const;
@@ -185,3 +181,24 @@ async function getColumnInfo(
   )) as any;
   return result;
 }
+
+const emptyOutputPath = (outputPath: string, outputType: 'file' | 'dir') => {
+  // delete existing output
+  if (fs.existsSync(outputPath)) {
+    fs.rmSync(outputPath, { recursive: true });
+  }
+
+  // make sure parent folder of output path exists
+  const parentFolder = outputType === 'dir' ? outputPath : path.resolve(outputPath, '../');
+  if (!fs.existsSync(parentFolder)) {
+    fs.mkdirSync(parentFolder, { recursive: true });
+  }
+};
+
+const output = async (outputPathOrStream: string | fs.WriteStream | NodeJS.WritableStream, content: string) => {
+  if (typeof outputPathOrStream === 'string') {
+    await writeToFile(outputPathOrStream, content);
+  } else {
+    outputPathOrStream.write(content);
+  }
+};

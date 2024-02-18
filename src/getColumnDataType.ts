@@ -8,7 +8,6 @@ export const getColumnDataType = (dataType: string | null, columnType: string, t
     case 'smallint':
     case 'mediumint':
     case 'bigint':
-    case 'decimal':
     case 'float':
     case 'double':
     case 'numeric':
@@ -19,6 +18,7 @@ export const getColumnDataType = (dataType: string | null, columnType: string, t
     case 'text':
     case 'mediumtext':
     case 'longtext':
+    case 'decimal':
       return 'string';
 
     case 'date':
