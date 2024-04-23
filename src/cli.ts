@@ -71,6 +71,14 @@ const options: Record<string, CliOption> = {
     description:
       'When specified, tinyint(1) columns will be treated as boolean. By default they are treated as number.',
   },
+  ignoreTables: {
+    type: 'string',
+    description: 'Comma-separated list of tables to ignore',
+  },
+  includeTables: {
+    type: 'string',
+    description: 'Comma-separated list of tables to include',
+  },
   help: {
     type: 'boolean',
     description: 'This help message',
@@ -94,11 +102,12 @@ if (positionals.length !== 1) {
   process.exit(1);
 }
 
-if (!values.outDir && !values.outFile) {
-  help();
-  console.error('Either --outFile or --outDir must be specified.');
-  process.exit(1);
-}
+// if (!values.outDir && !values.outFile) {
+//   help();
+//   console.error('Either --outFile or --outDir must be specified.');
+//   process.exit(1);
+// }
+
 if (values.outDir && values.outFile) {
   help();
   console.error('The --outDir and --outFile options are mutually exclusive. Choose one!');
@@ -125,11 +134,19 @@ if (values.uri && values.uri.length > 0) {
 generateMysqlTypes({
   db: dbConfig,
 
-  output: values.outFile ? { file: values.outFile } : { dir: values.outDir },
+  output: values.outFile
+    ? { file: values.outFile }
+    : values.outDir
+      ? { dir: values.outDir }
+      : { stream: process.stdout },
 
   suffix: values.suffix,
 
   tinyintIsBoolean: values.tinyintIsBoolean,
+
+  ignoreTables: values.ignoreTables ? values.ignoreTables.split(',') : [],
+
+  includeTables: values.includeTables ? values.includeTables.split(',') : [],
 });
 
 function help() {

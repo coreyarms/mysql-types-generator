@@ -125,6 +125,12 @@ Most options from the Javascript API are available, run `npx mysql-types-generat
 
 ## Change Log
 
+- `2.0.0`
+  - Changed mapping of `decimal` column to string instead of number
+  - Added `includeTables` option (optional) to specify a list of tables to generate types for
+  - CLI: Added the `ignoreTables` and `includeTables` options
+  - CLI: Output to `STDOUT` if no `--outDir` or `--outFile` option is provided
+  - JS API: Added `stream` option to ouput to a `writeStream`
 - `1.0.8`
   - Bugfixes: node version check, MariaDB support, ES2020 target
 - `1.0.3`
