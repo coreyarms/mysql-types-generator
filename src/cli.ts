@@ -1,5 +1,3 @@
-// @ts-expect-error This is a very new API, and @types/node doesn't have types
-// for this yet.
 import { parseArgs } from 'node:util';
 import { generateMysqlTypes } from './generateMysqlTypes';
 
@@ -115,38 +113,46 @@ if (values.outDir && values.outFile) {
 }
 
 let dbConfig;
-if (values.uri && values.uri.length > 0) {
+if ((values.uri as string).length > 0) {
   dbConfig = {
-    uri: values.uri,
+    uri: values.uri as string,
     database: positionals[0],
-    ssl: values.ssl ? JSON.parse(values.ssl) : undefined,
+    ssl: values.ssl ? JSON.parse(values.ssl as string) : undefined,
   };
 } else {
   dbConfig = {
-    host: values.host ?? options.host.default,
-    port: +(values.port ?? options.port.default),
-    user: values.user ?? options.user.default,
-    password: values.password ?? options.password.default,
+    host: (values.host as string) ?? options.host.default,
+    port: +((values.port as string) ?? options.port.default),
+    user: (values.user as string) ?? options.user.default,
+    password: (values.password as string) ?? options.password.default,
     database: positionals[0],
-    ssl: values.ssl ? JSON.parse(values.ssl) : undefined,
+    ssl: values.ssl ? JSON.parse(values.ssl as string) : undefined,
   };
 }
+
+let ignoreTables: string[] = [];
+if (values.ignoreTables) {
+  const ignoreTablesValue = values.ignoreTables as string;
+  ignoreTables = ignoreTablesValue.split(',');
+}
+let includeTables: string[] = [];
+if (values.includeTables) {
+  const includeTablesValue = values.includeTables as string;
+  includeTables = includeTablesValue.split(',');
+}
+
 generateMysqlTypes({
   db: dbConfig,
 
-  output: values.outFile
-    ? { file: values.outFile }
-    : values.outDir
-      ? { dir: values.outDir }
-      : { stream: process.stdout },
+  output: values.outFile ? { file: values.outFile as string } : { dir: values.outDir as string },
 
-  suffix: values.suffix,
+  suffix: values.suffix as string,
 
-  tinyintIsBoolean: values.tinyintIsBoolean,
+  tinyintIsBoolean: values.tinyintIsBoolean as boolean,
 
-  ignoreTables: values.ignoreTables ? values.ignoreTables.split(',') : [],
+  ignoreTables,
 
-  includeTables: values.includeTables ? values.includeTables.split(',') : [],
+  includeTables,
 });
 
 function help() {
