@@ -22,6 +22,7 @@ export type GenerateMysqlTypesConfig = {
       ) & {
         database: string;
         ssl?: SslOptions;
+        jsonStrings?: boolean;
       };
   output:
     | {
@@ -55,6 +56,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       uri: config.db.uri,
       database: config.db.database,
       ssl: config.db.ssl,
+      jsonStrings: config.db.jsonStrings
     };
   } else {
     connectionConfig = {
@@ -64,6 +66,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       password: config.db.password,
       database: config.db.database,
       ssl: config.db.ssl,
+
     };
   }
   const connection = await mysql.createConnection(connectionConfig);
@@ -102,8 +105,8 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       'dir' in config.output
         ? `${config.output.dir}/${typeName}.ts`
         : 'file' in config.output
-        ? config.output.file
-        : config.output.stream;
+          ? config.output.file
+          : config.output.stream;
 
     // start outputting the type
     await output(outputDestination, `export type ${typeName} = {\n`);
