@@ -43,10 +43,12 @@ export type GenerateMysqlTypesConfig = {
     enumString?: string;
   }[];
   tinyintIsBoolean?: boolean;
+  jsonStrings?: boolean;
 };
 
 export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
   const tinyintIsBoolean = config.tinyintIsBoolean ?? false;
+  const jsonStrings = config.jsonStrings ?? false;
 
   // connect to db
   let connectionConfig: mysql.ConnectionOptions;
@@ -64,6 +66,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       password: config.db.password,
       database: config.db.database,
       ssl: config.db.ssl,
+
     };
   }
   const connection = await mysql.createConnection(connectionConfig);
@@ -102,15 +105,15 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
       'dir' in config.output
         ? `${config.output.dir}/${typeName}.ts`
         : 'file' in config.output
-        ? config.output.file
-        : config.output.stream;
+          ? config.output.file
+          : config.output.stream;
 
     // start outputting the type
     await output(outputDestination, `export type ${typeName} = {\n`);
 
     // output the columns and types
     for (const column of columns) {
-      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE, tinyintIsBoolean)}`;
+      let columnDataType = `${getColumnDataType(column.DATA_TYPE, column.COLUMN_TYPE, tinyintIsBoolean, jsonStrings)}`;
 
       const columnOverride = config.overrides?.find(
         (override) => override.tableName === table && override.columnName === column.COLUMN_NAME,
@@ -120,6 +123,7 @@ export const generateMysqlTypes = async (config: GenerateMysqlTypesConfig) => {
           columnOverride.columnType,
           columnOverride.columnType === 'enum' ? columnOverride.enumString || 'enum(undefined)' : '',
           tinyintIsBoolean,
+          jsonStrings,
         );
       }
 

@@ -1,4 +1,4 @@
-export const getColumnDataType = (dataType: string | null, columnType: string, tinyintIsBoolean: boolean): string => {
+export const getColumnDataType = (dataType: string | null, columnType: string, tinyintIsBoolean: boolean, jsonStrings: boolean): string => {
   if (columnType === null) {
     throw new Error('The DATA_TYPE field in information_schema should never be null. This may be a bug');
   }
@@ -46,7 +46,7 @@ export const getColumnDataType = (dataType: string | null, columnType: string, t
       return 'number';
 
     case 'json':
-      return 'any';
+      return jsonStrings ? 'string' : 'any';
 
     case 'enum':
       return columnType
