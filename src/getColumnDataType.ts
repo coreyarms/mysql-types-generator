@@ -1,4 +1,9 @@
-export const getColumnDataType = (dataType: string | null, columnType: string, tinyintIsBoolean: boolean, jsonStrings: boolean): string => {
+export const getColumnDataType = (
+  dataType: string | null,
+  columnType: string,
+  tinyintIsBoolean: boolean,
+  jsonStrings: boolean,
+): string => {
   if (columnType === null) {
     throw new Error('The DATA_TYPE field in information_schema should never be null. This may be a bug');
   }
